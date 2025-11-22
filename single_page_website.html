@@ -1,0 +1,321 @@
+<!--
+Single-file responsive website (HTML + CSS + JS)
+Save as: index.html
+Features:
+- Responsive header + mobile menu
+- Hero section with CTA
+- Features grid
+- Gallery modal
+- Contact form with validation
+- Dark mode toggle (persisted in localStorage)
+- Smooth scroll
+- Accessible attributes and simple animations
+
+Author: ChatGPT
+-->
+
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contoh Website Single-File</title>
+  <meta name="description" content="Contoh template HTML, CSS, dan JS satu file: responsive, dark mode, form validation">
+  <style>
+    :root{
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #0f1724;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --glass: rgba(255,255,255,0.6);
+      --radius: 14px;
+      --shadow: 0 6px 20px rgba(16,24,40,0.08);
+      --max-width: 1100px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      scroll-behavior: smooth;
+    }
+    [data-theme="dark"]{
+      --bg: #0b1220;
+      --card: #0f1724;
+      --text: #e6eef8;
+      --muted: #a3b0c3;
+      --accent: #60a5fa;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 8px 30px rgba(2,6,23,0.6);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),var(--glass));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:32px 20px;
+      display:flex;
+      justify-content:center;
+      font-size:16px;
+      line-height:1.45;
+    }
+
+    .wrap{width:100%;max-width:var(--max-width)}
+
+    /* Header */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:28px;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow);
+    }
+    nav{display:flex;gap:18px;align-items:center}
+    nav a{color:var(--muted);text-decoration:none;font-weight:600}
+    .cta{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+
+    /* Mobile menu */
+    .menu-btn{display:none;background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px;border-radius:10px}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;margin-bottom:28px}
+    .hero-card{background:var(--card);padding:28px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    h1{margin:0 0 12px;font-size:28px}
+    p.lead{margin:0 0 18px;color:var(--muted)}
+    .actions{display:flex;gap:12px}
+
+    /* Features */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:18px 0}
+    .feature{background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow)}
+    .feature h3{margin:0 0 8px}
+    .muted{color:var(--muted)}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .gallery img{width:100%;height:120px;object-fit:cover;border-radius:8px;cursor:pointer}
+
+    /* Contact */
+    form{display:grid;gap:10px}
+    input,textarea{padding:10px;border-radius:8px;border:1px solid rgba(15,23,36,0.08);background:transparent;color:var(--text)}
+    .small{font-size:14px;color:var(--muted)}
+    .error{color:#ff7b7b;font-size:13px}
+
+    footer{margin-top:28px;color:var(--muted);font-size:14px}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);padding:20px}
+    .modal.open{display:flex}
+    .modal .box{max-width:900px;width:100%;border-radius:12px;overflow:hidden}
+    .modal img{width:100%;height:auto;display:block}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .gallery{grid-template-columns:repeat(2,1fr)}
+      nav{display:none}
+      .menu-btn{display:block}
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo">SG</div>
+        <div>
+          <div style="font-weight:800">SitusGampang</div>
+          <div class="small muted">Template HTML/CSS/JS</div>
+        </div>
+      </div>
+
+      <nav aria-label="Main navigation">
+        <a href="#features">Fitur</a>
+        <a href="#gallery">Galeri</a>
+        <a href="#contact">Kontak</a>
+        <a class="cta" href="#contact">Hubungi</a>
+      </nav>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="menu-btn" id="menuToggle" aria-expanded="false">☰</button>
+        <button id="themeToggle" title="Toggle dark mode">🌓</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-card" role="region" aria-label="Intro">
+          <h1>Membuat website cepat dengan template ini</h1>
+          <p class="lead">Template ini berisi HTML, CSS, dan JavaScript dalam satu file. Mudah diubah dan cocok untuk demo, landing page, atau portofolio.</p>
+          <div class="actions">
+            <a class="cta" href="#contact">Mulai</a>
+            <a class="small muted" href="#features">Pelajari fitur →</a>
+          </div>
+
+          <div style="margin-top:18px">
+            <h4 class="small muted">Contoh fitur</h4>
+            <ul class="small muted" style="margin:8px 0 0;padding-left:18px">
+              <li>Dark mode otomatis</li>
+              <li>Form validasi sederhana</li>
+              <li>Galeri dengan modal</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-hidden="false">
+          <h3 style="margin-top:0">Preview Cepat</h3>
+          <p class="muted small">Klik gambar untuk membuka galeri.</p>
+          <div class="gallery" id="gallery">
+            <img src="https://picsum.photos/seed/a/600/400" alt="Gambar 1" data-full="https://picsum.photos/seed/a/1200/800">
+            <img src="https://picsum.photos/seed/b/600/400" alt="Gambar 2" data-full="https://picsum.photos/seed/b/1200/800">
+            <img src="https://picsum.photos/seed/c/600/400" alt="Gambar 3" data-full="https://picsum.photos/seed/c/1200/800">
+          </div>
+        </aside>
+      </section>
+
+      <section id="features">
+        <h2 style="margin-bottom:8px">Fitur</h2>
+        <p class="muted">Beberapa komponen dan pola UI yang bisa kamu pakai ulang.</p>
+        <div class="features">
+          <div class="feature">
+            <h3>Responsif</h3>
+            <p class="small muted">Tata letak yang menyesuaikan layar perangkat.</p>
+          </div>
+          <div class="feature">
+            <h3>Dark mode</h3>
+            <p class="small muted">Toggle tema gelap yang tersimpan di browser.</p>
+          </div>
+          <div class="feature">
+            <h3>Form Validasi</h3>
+            <p class="small muted">Validasi sederhana di sisi klien sebelum dikirim.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" style="margin-top:18px">
+        <h2>Kontak</h2>
+        <p class="muted">Isi formulir berikut untuk mengirim pesan (contoh).</p>
+        <div class="hero-card" style="margin-top:10px">
+          <form id="contactForm" novalidate>
+            <label class="small">Nama <input id="name" name="name" required placeholder="Nama lengkap"></label>
+            <label class="small">Email <input id="email" name="email" type="email" required placeholder="email@contoh.com"></label>
+            <label class="small">Pesan <textarea id="message" name="message" rows="4" required placeholder="Tulis pesan..."></textarea></label>
+            <div class="error" id="formError" role="alert" style="display:none"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button type="submit" class="cta">Kirim</button>
+              <button type="button" id="clearBtn" class="small muted" style="background:transparent;border:none">Bersihkan</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      &copy; <span id="year"></span> SitusGampang • Dibuat dengan ❤️
+    </footer>
+
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal" role="dialog" aria-hidden="true">
+    <div class="box" role="document">
+      <button id="closeModal" style="position:absolute;right:22px;top:18px;background:transparent;border:none;font-size:22px;color:white">✕</button>
+      <img id="modalImg" src="" alt="">
+    </div>
+  </div>
+
+  <script>
+    // --- Utilities
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Theme (dark mode) persisted
+    const root = document.documentElement;
+    const themeKey = 'situsgampang:theme';
+    function applyTheme(t){
+      if(t==='dark') root.setAttribute('data-theme','dark'); else root.removeAttribute('data-theme');
+      localStorage.setItem(themeKey, t);
+    }
+    // initial
+    const saved = localStorage.getItem(themeKey) || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(saved);
+    $('#themeToggle').addEventListener('click', ()=> applyTheme(localStorage.getItem(themeKey)==='dark' ? 'light' : 'dark'));
+
+    // Mobile menu toggle (simple)
+    const menuBtn = $('#menuToggle');
+    menuBtn && menuBtn.addEventListener('click', ()=>{
+      const nav = document.querySelector('nav');
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.setAttribute('aria-expanded', String(!expanded));
+      if(!expanded){ nav.style.display = 'flex'; nav.style.position='absolute'; nav.style.right='20px'; nav.style.top='72px'; nav.style.background='var(--card)'; nav.style.padding='12px'; nav.style.borderRadius='10px'; nav.style.boxShadow= 'var(--shadow)'; }
+      else { nav.removeAttribute('style'); }
+    });
+
+    // Gallery modal
+    const modal = $('#modal');
+    const modalImg = $('#modalImg');
+    $$('#gallery img').forEach(img=>{
+      img.addEventListener('click', e=>{
+        const src = img.dataset.full || img.src;
+        modalImg.src = src;
+        modalImg.alt = img.alt || 'Gambar';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+      });
+    });
+    $('#closeModal').addEventListener('click', ()=>{ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); });
+    modal.addEventListener('click', e=>{ if(e.target === modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); } });
+
+    // Form validation (simple) and simulated submit
+    const form = $('#contactForm');
+    const formError = $('#formError');
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      formError.style.display = 'none';
+      const name = $('#name').value.trim();
+      const email = $('#email').value.trim();
+      const message = $('#message').value.trim();
+      if(!name || !email || !message){ showError('Semua kolom harus diisi.'); return; }
+      if(!validateEmail(email)){ showError('Mohon masukkan alamat email yang valid.'); return; }
+
+      // Simulate successful submit
+      alert('Pesan berhasil dikirim! (simulasi)');
+      form.reset();
+    });
+    function showError(text){ formError.textContent = text; formError.style.display = 'block'; }
+    function validateEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+    // Clear button
+    $('#clearBtn').addEventListener('click', ()=> form.reset());
+
+    // Accessibility: allow Esc to close modal
+    document.addEventListener('keydown', e=>{
+      if(e.key === 'Escape'){
+        if(modal.classList.contains('open')){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+      }
+    });
+
+    // Smooth scroll polyfill: ensure all internal links scroll nicely
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
+        const href = a.getAttribute('href');
+        if(href === '#') return;
+        const target = document.querySelector(href);
+        if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth',block:'start'}); }
+      });
+    });
+
+    // small helper: lazy load images (native)
+    $$('#gallery img').forEach(img=> img.setAttribute('loading','lazy'));
+
+  </script>
+</body>
+</html>
